@@ -24,7 +24,7 @@ namespace Toon.Format.Internal.Shared
         /// <summary>
         /// Checks if the token is a valid numeric literal.
         /// Rules aligned with TS:
-        /// - Rejects leading zeros (except "0" itself or decimals like "0.xxx")
+        /// - Rejects leading zeros (except "0" itself, decimals like "0.xxx", scientific notation like "0e1")
         /// - Parses successfully and is a finite number (not NaN/Infinity)
         /// </summary>
         internal static bool IsNumericLiteral(string token)
@@ -33,7 +33,11 @@ namespace Toon.Format.Internal.Shared
                 return false;
 
             // Must not have leading zeros (except "0" itself or decimals like "0.5")
-            if (token.Length > 1 && token[0] == '0' && token[1] != '.')
+            if (token.Length > 1 && token[0] == '0' && token[1] != '.' && token[1] != 'e')
+                return false;
+
+            // Same case as above except catering for negative numbers
+            if (token.Length > 2 && token[0] == '-' && token[1] == '0' && token[2] != '.' && token[2] != 'e')
                 return false;
 
             if (!double.TryParse(token, NumberStyles.Float, CultureInfo.InvariantCulture, out var num))
