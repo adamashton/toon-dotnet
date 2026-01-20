@@ -221,6 +221,46 @@ value: 5E+00
     }
 
     [Fact]
+    [Trait("Description", "parses zero with exponent as number")]
+    public void ParsesZeroWithExponentAsNumber()
+    {
+        // Arrange
+        var input =
+"""
+value: 0e1
+""";
+
+        // Act & Assert
+        var result = ToonDecoder.Decode(input);
+
+        var expected = JsonNode.Parse("""
+{"value":0}
+""");
+
+        Assert.True(JsonNode.DeepEquals(result, expected));
+    }
+
+    [Fact]
+    [Trait("Description", "parses negative zero with exponent as number")]
+    public void ParsesNegativeZeroWithExponentAsNumber()
+    {
+        // Arrange
+        var input =
+"""
+value: -0e1
+""";
+
+        // Act & Assert
+        var result = ToonDecoder.Decode(input);
+
+        var expected = JsonNode.Parse("""
+{"value":0}
+""");
+
+        Assert.True(JsonNode.DeepEquals(result, expected));
+    }
+
+    [Fact]
     [Trait("Description", "parses exponent notation")]
     public void ParsesExponentNotation()
     {
@@ -369,6 +409,46 @@ nums[3]: 05,007,0123
 
         var expected = JsonNode.Parse("""
 {"nums":["05","007","0123"]}
+""");
+
+        Assert.True(JsonNode.DeepEquals(result, expected));
+    }
+
+    [Fact]
+    [Trait("Description", "treats unquoted negative leading-zero number as string")]
+    public void TreatsUnquotedNegativeLeadingZeroNumberAsString()
+    {
+        // Arrange
+        var input =
+"""
+-05
+""";
+
+        // Act & Assert
+        var result = ToonDecoder.Decode(input);
+
+        var expected = JsonNode.Parse("""
+"-05"
+""");
+
+        Assert.True(JsonNode.DeepEquals(result, expected));
+    }
+
+    [Fact]
+    [Trait("Description", "treats negative leading-zeros in array as strings")]
+    public void TreatsNegativeLeadingZerosInArrayAsStrings()
+    {
+        // Arrange
+        var input =
+"""
+nums[2]: -05,-007
+""";
+
+        // Act & Assert
+        var result = ToonDecoder.Decode(input);
+
+        var expected = JsonNode.Parse("""
+{"nums":["-05","-007"]}
 """);
 
         Assert.True(JsonNode.DeepEquals(result, expected));
